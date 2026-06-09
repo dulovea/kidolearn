@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.75rem;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-white text-slate-900 antialiased;
+  }
+
+  .child-space {
+    @apply font-child;
+  }
+
+  .child-space button,
+  .child-space [role="button"] {
+    @apply min-h-[56px] min-w-[56px];
+  }
+
+  .parent-space {
+    @apply font-parent;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

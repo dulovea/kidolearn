@@ -1,0 +1,49 @@
+# ── Dependencies ──────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ── Build output ───────────────────────────────────────────
+dist/
+dist-ssr/
+build/
+
+# ── Environment variables — NE JAMAIS COMMITTER ───────────
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+
+# ── Logs ───────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── Éditeurs / OS ──────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ── TanStack Router (auto-généré au démarrage) ─────────────
+src/routeTree.gen.ts
+
+# ── PWA (fichiers générés par vite-plugin-pwa) ─────────────
+dev-dist/
+public/sw.js
+public/workbox-*.js
+
+# ── TypeScript ─────────────────────────────────────────────
+*.tsbuildinfo
+
+# ── Vite cache ─────────────────────────────────────────────
+.vite/
