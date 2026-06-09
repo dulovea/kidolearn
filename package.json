@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsr generate && tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "type-check": "tsc --noEmit"
@@ -22,6 +22,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@tanstack/router-cli": "^1.81.0",
     "@tanstack/router-plugin": "^1.81.0",
     "@types/node": "^22.19.20",
     "@types/react": "^18.3.12",

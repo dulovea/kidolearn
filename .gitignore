@@ -34,8 +34,9 @@ Thumbs.db
 *.sln
 *.sw?
 
-# ── TanStack Router (auto-généré au démarrage) ─────────────
-src/routeTree.gen.ts
+# ── TanStack Router — généré par `tsr generate` au build ───
+# NE PAS ignorer : Vercel en a besoin pour tsc, ou tsr le recrée
+# src/routeTree.gen.ts
 
 # ── PWA (fichiers générés par vite-plugin-pwa) ─────────────
 dev-dist/
