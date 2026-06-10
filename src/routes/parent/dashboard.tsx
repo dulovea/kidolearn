@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { ParentOnboarding } from "@/components/ParentOnboarding";
 import { useChildProfiles } from "@/hooks/useChildProfile";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { supabase } from "@/lib/supabase";
@@ -21,6 +22,14 @@ function ParentDashboard() {
   const [deleteTarget, setDeleteTarget] = useState<ChildProfile | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deletedName, setDeletedName] = useState<string | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => !localStorage.getItem("onboarding_done")
+  );
+
+  function finishOnboarding() {
+    localStorage.setItem("onboarding_done", "1");
+    setShowOnboarding(false);
+  }
 
   const displayProfiles = profiles ?? rawProfiles;
 
@@ -41,6 +50,7 @@ function ParentDashboard() {
 
   return (
     <div className="parent-space min-h-screen bg-parent-bg">
+      {showOnboarding && <ParentOnboarding onDone={finishOnboarding} />}
       <header className="border-b border-slate-200 bg-white px-6 py-4 sticky top-0 z-10">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
           <div>

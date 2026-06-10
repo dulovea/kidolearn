@@ -10,6 +10,7 @@ import type { ModuleId } from "@/types/exercise";
 import { z } from "zod";
 import { primeVoices } from "@/lib/speech";
 import { resumeAudio } from "@/lib/audio";
+import { ChildOnboarding } from "@/components/ChildOnboarding";
 
 const searchSchema = z.object({ childId: z.string() });
 
@@ -44,13 +45,22 @@ export function ChildHome() {
   const navigate = useNavigate();
   const { childId } = Route.useSearch();
   const [child, setChild] = useState<ChildProfile | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     const profiles = getCachedChildProfiles() as ChildProfile[];
     setChild(profiles.find((p) => p.id === childId) ?? null);
+    if (!localStorage.getItem(`onboarding_done_${childId}`)) {
+      setShowOnboarding(true);
+    }
     primeVoices();
     resumeAudio();
   }, [childId]);
+
+  function finishChildOnboarding() {
+    localStorage.setItem(`onboarding_done_${childId}`, "1");
+    setShowOnboarding(false);
+  }
 
   if (!child) return (
     <div className="child-space flex min-h-screen items-center justify-center bg-child-bg">
@@ -60,6 +70,9 @@ export function ChildHome() {
 
   return (
     <div className="child-space min-h-screen bg-gradient-to-b from-child-bg to-indigo-50 px-4 py-6">
+      {showOnboarding && child && (
+        <ChildOnboarding childName={child.name} onDone={finishChildOnboarding} />
+      )}
       <header className="mb-6 flex items-center justify-between">
         <button onClick={() => navigate({ to: "/parent/dashboard" })}
           className="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur hover:bg-white">
