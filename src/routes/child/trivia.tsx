@@ -19,7 +19,7 @@ function TriviaPage() {
   const navigate = useNavigate();
   const { childId } = Route.useSearch();
   const today = new Date().toISOString().split("T")[0];
-  const questions = getDailyQuestions(today);
+  const questions = getDailyQuestions(today, childId);
 
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);

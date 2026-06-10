@@ -41,6 +41,28 @@ function ParentDashboard() {
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-8">
+        {/* Parent quick actions */}
+        <section className="mb-6">
+          <h2 className="mb-3 text-base font-semibold text-parent-primary">Espace parent</h2>
+          <div className="grid grid-cols-3 gap-3">
+            <button onClick={() => navigate({ to: "/parent/trivia/" })}
+              className="flex flex-col items-center gap-1 rounded-xl bg-white border border-slate-200 p-3 shadow-sm hover:border-parent-accent transition">
+              <span className="text-2xl">🧠</span>
+              <span className="text-xs font-medium text-slate-600 text-center">Trivia solo</span>
+            </button>
+            <button onClick={() => navigate({ to: "/parent/trivia/challenge" })}
+              className="flex flex-col items-center gap-1 rounded-xl bg-white border border-slate-200 p-3 shadow-sm hover:border-parent-accent transition">
+              <span className="text-2xl">📤</span>
+              <span className="text-xs font-medium text-slate-600 text-center">Créer un défi</span>
+            </button>
+            <button onClick={() => navigate({ to: "/parent/leaderboard" })}
+              className="flex flex-col items-center gap-1 rounded-xl bg-white border border-slate-200 p-3 shadow-sm hover:border-parent-accent transition">
+              <span className="text-2xl">🏆</span>
+              <span className="text-xs font-medium text-slate-600 text-center">Classement</span>
+            </button>
+          </div>
+        </section>
+
         <section>
           <h2 className="mb-4 text-base font-semibold text-parent-primary">Mes enfants</h2>
 
@@ -54,6 +76,8 @@ function ParentDashboard() {
                 <ChildCard key={child.id} child={child}
                   onPlay={() => navigate({ to: "/child/home", search: { childId: child.id } })}
                   onStats={() => navigate({ to: "/parent/children/$childId/stats", params: { childId: child.id } })}
+                  onTrivia={() => navigate({ to: "/parent/trivia/" })}
+                  onDuel={() => navigate({ to: "/parent/trivia/duel/$childId", params: { childId: child.id } })}
                 />
               ))}
               <button onClick={() => navigate({ to: "/parent/children/new" })}
@@ -68,12 +92,23 @@ function ParentDashboard() {
   );
 }
 
-function ChildCard({ child, onPlay, onStats }: { child: ChildProfile; onPlay: () => void; onStats: () => void }) {
+function ChildCard({
+  child,
+  onPlay,
+  onStats,
+  onTrivia,
+  onDuel,
+}: {
+  child: ChildProfile;
+  onPlay: () => void;
+  onStats: () => void;
+  onTrivia: () => void;
+  onDuel: () => void;
+}) {
   const p = getProgress(child.id);
   const mathCompleted = MATH_LEVELS.filter((l) => p.levels[`math-${l.id}`]?.completed).length;
   const totalMath = MATH_LEVELS.length;
 
-  // Alert: not played in 3 days
   const lastKeys = Object.values(p.levels).sort((a, b) => b.lastPlayedAt.localeCompare(a.lastPlayedAt));
   const lastPlayed = lastKeys[0]?.lastPlayedAt;
   const daysSince = lastPlayed
@@ -82,30 +117,28 @@ function ChildCard({ child, onPlay, onStats }: { child: ChildProfile; onPlay: ()
   const alert = daysSince !== null && daysSince >= 3;
 
   const triviaStreak = p.triviaStreak;
+  const lastTriviaDate = (p as any).lastTriviaDate as string | undefined;
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <span className="text-4xl">{child.avatarEmoji}</span>
-          <div>
-            <p className="font-bold text-parent-primary text-lg">{child.name}</p>
-            {alert && (
-              <p className="text-xs text-amber-600 font-medium">⚠️ N'a pas joué depuis {daysSince} jours</p>
-            )}
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <button onClick={onPlay} className="rounded-lg bg-parent-accent px-4 py-1.5 text-xs font-medium text-white hover:opacity-90">Jouer</button>
-          <button onClick={onStats} className="rounded-lg border border-slate-200 px-4 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">Stats</button>
+      <div className="flex items-center gap-3 mb-3">
+        <span className="text-4xl">{child.avatarEmoji}</span>
+        <div>
+          <p className="font-bold text-parent-primary text-lg">{child.name}</p>
+          {alert && (
+            <p className="text-xs text-amber-600 font-medium">⚠️ N'a pas joué depuis {daysSince} jours</p>
+          )}
+          {lastTriviaDate && (
+            <p className="text-xs text-slate-400">Dernier trivia : {new Date(lastTriviaDate).toLocaleDateString("fr-FR")}</p>
+          )}
         </div>
       </div>
 
       {/* Progress bars */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
           <div className="flex justify-between text-xs text-slate-500 mb-1">
-            <span>🔢 Maths</span><span>{mathCompleted}/{totalMath} niveaux</span>
+            <span>🔢 Maths</span><span>{mathCompleted}/{totalMath}</span>
           </div>
           <div className="bg-slate-100 rounded-full h-2">
             <div className="bg-parent-accent h-2 rounded-full" style={{ width: `${(mathCompleted/totalMath)*100}%` }} />
@@ -113,12 +146,28 @@ function ChildCard({ child, onPlay, onStats }: { child: ChildProfile; onPlay: ()
         </div>
         <div>
           <div className="flex justify-between text-xs text-slate-500 mb-1">
-            <span>🧠 Trivia streak</span><span>{triviaStreak} jours</span>
+            <span>🧠 Trivia streak</span><span>{triviaStreak} 🔥</span>
           </div>
           <div className="bg-slate-100 rounded-full h-2">
             <div className="bg-violet-400 h-2 rounded-full" style={{ width: `${Math.min((triviaStreak/7)*100, 100)}%` }} />
           </div>
         </div>
+      </div>
+
+      {/* Buttons */}
+      <div className="grid grid-cols-2 gap-2">
+        <button onClick={onPlay} className="rounded-lg bg-parent-accent px-3 py-1.5 text-xs font-medium text-white hover:opacity-90">
+          🎮 Jouer
+        </button>
+        <button onClick={onStats} className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50">
+          📊 Stats
+        </button>
+        <button onClick={onTrivia} className="rounded-lg bg-violet-500 px-3 py-1.5 text-xs font-medium text-white hover:opacity-90">
+          🧠 Jouer au Trivia
+        </button>
+        <button onClick={onDuel} className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-medium text-white hover:opacity-90">
+          ⚔️ Défier {child.name}
+        </button>
       </div>
     </div>
   );
