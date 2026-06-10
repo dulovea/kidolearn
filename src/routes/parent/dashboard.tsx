@@ -50,7 +50,7 @@ function ParentDashboard() {
               <span className="text-2xl">🧠</span>
               <span className="text-xs font-medium text-slate-600 text-center">Trivia solo</span>
             </button>
-            <button onClick={() => navigate({ to: "/parent/triviachallenge" })}
+            <button onClick={() => navigate({ to: "/parent/trivia/challenge" })}
               className="flex flex-col items-center gap-1 rounded-xl bg-white border border-slate-200 p-3 shadow-sm hover:border-parent-accent transition">
               <span className="text-2xl">📤</span>
               <span className="text-xs font-medium text-slate-600 text-center">Créer un défi</span>
@@ -77,7 +77,7 @@ function ParentDashboard() {
                   onPlay={() => navigate({ to: "/child/home", search: { childId: child.id } })}
                   onStats={() => navigate({ to: "/parent/children/$childId/stats", params: { childId: child.id } })}
                   onTrivia={() => navigate({ to: "/parent/trivia" })}
-                  onDuel={() => navigate({ to: "/parent/triviaduel/$childId", params: { childId: child.id } })}
+                  onDuel={() => navigate({ to: "/parent/trivia/duel/$childId", params: { childId: child.id } })}
                 />
               ))}
               <button onClick={() => navigate({ to: "/parent/children/new" })}
