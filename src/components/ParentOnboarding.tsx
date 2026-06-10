@@ -4,7 +4,7 @@ const STEPS = [
   {
     emoji: "👋",
     title: "Bienvenue sur KidoLearn !",
-    body: "La plateforme éducative inspirée de Kumon pour vos enfants. Commençons par créer le profil de votre enfant.",
+    body: "La plateforme éducative basée sur l'apprentissage par étapes pour vos enfants. Commençons par créer le profil de votre enfant.",
   },
   {
     emoji: "👶",

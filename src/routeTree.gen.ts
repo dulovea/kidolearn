@@ -10,12 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ParentLeaderboardRouteImport } from './routes/parent/leaderboard'
 import { Route as ParentDashboardRouteImport } from './routes/parent/dashboard'
 import { Route as ChildTriviaRouteImport } from './routes/child/trivia'
 import { Route as ChildHomeRouteImport } from './routes/child/home'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as ParentTriviaIndexRouteImport } from './routes/parent/trivia/index'
+import { Route as ParentTriviaChallengeRouteImport } from './routes/parent/trivia/challenge'
 import { Route as ParentChildrenNewRouteImport } from './routes/parent/children/new'
+import { Route as ParentTriviaDuelChildIdRouteImport } from './routes/parent/trivia/duel.$childId'
 import { Route as ParentChildrenChildIdStatsRouteImport } from './routes/parent/children/$childId/stats'
 import { Route as ChildModuleModuleIdLevelsRouteImport } from './routes/child/module/$moduleId/levels'
 import { Route as ChildModuleModuleIdLevelLevelIdResultRouteImport } from './routes/child/module/$moduleId/level/$levelId/result'
@@ -24,6 +28,11 @@ import { Route as ChildModuleModuleIdLevelLevelIdPlayRouteImport } from './route
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentLeaderboardRoute = ParentLeaderboardRouteImport.update({
+  id: '/parent/leaderboard',
+  path: '/parent/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParentDashboardRoute = ParentDashboardRouteImport.update({
@@ -51,9 +60,24 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ParentTriviaIndexRoute = ParentTriviaIndexRouteImport.update({
+  id: '/parent/trivia/',
+  path: '/parent/trivia/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentTriviaChallengeRoute = ParentTriviaChallengeRouteImport.update({
+  id: '/parent/trivia/challenge',
+  path: '/parent/trivia/challenge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ParentChildrenNewRoute = ParentChildrenNewRouteImport.update({
   id: '/parent/children/new',
   path: '/parent/children/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParentTriviaDuelChildIdRoute = ParentTriviaDuelChildIdRouteImport.update({
+  id: '/parent/trivia/duel/$childId',
+  path: '/parent/trivia/duel/$childId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ParentChildrenChildIdStatsRoute =
@@ -88,9 +112,13 @@ export interface FileRoutesByFullPath {
   '/child/home': typeof ChildHomeRoute
   '/child/trivia': typeof ChildTriviaRoute
   '/parent/dashboard': typeof ParentDashboardRoute
+  '/parent/leaderboard': typeof ParentLeaderboardRoute
   '/parent/children/new': typeof ParentChildrenNewRoute
+  '/parent/trivia/challenge': typeof ParentTriviaChallengeRoute
+  '/parent/trivia/': typeof ParentTriviaIndexRoute
   '/child/module/$moduleId/levels': typeof ChildModuleModuleIdLevelsRoute
   '/parent/children/$childId/stats': typeof ParentChildrenChildIdStatsRoute
+  '/parent/trivia/duel/$childId': typeof ParentTriviaDuelChildIdRoute
   '/child/module/$moduleId/level/$levelId/play': typeof ChildModuleModuleIdLevelLevelIdPlayRoute
   '/child/module/$moduleId/level/$levelId/result': typeof ChildModuleModuleIdLevelLevelIdResultRoute
 }
@@ -101,9 +129,13 @@ export interface FileRoutesByTo {
   '/child/home': typeof ChildHomeRoute
   '/child/trivia': typeof ChildTriviaRoute
   '/parent/dashboard': typeof ParentDashboardRoute
+  '/parent/leaderboard': typeof ParentLeaderboardRoute
   '/parent/children/new': typeof ParentChildrenNewRoute
+  '/parent/trivia/challenge': typeof ParentTriviaChallengeRoute
+  '/parent/trivia': typeof ParentTriviaIndexRoute
   '/child/module/$moduleId/levels': typeof ChildModuleModuleIdLevelsRoute
   '/parent/children/$childId/stats': typeof ParentChildrenChildIdStatsRoute
+  '/parent/trivia/duel/$childId': typeof ParentTriviaDuelChildIdRoute
   '/child/module/$moduleId/level/$levelId/play': typeof ChildModuleModuleIdLevelLevelIdPlayRoute
   '/child/module/$moduleId/level/$levelId/result': typeof ChildModuleModuleIdLevelLevelIdResultRoute
 }
@@ -115,9 +147,13 @@ export interface FileRoutesById {
   '/child/home': typeof ChildHomeRoute
   '/child/trivia': typeof ChildTriviaRoute
   '/parent/dashboard': typeof ParentDashboardRoute
+  '/parent/leaderboard': typeof ParentLeaderboardRoute
   '/parent/children/new': typeof ParentChildrenNewRoute
+  '/parent/trivia/challenge': typeof ParentTriviaChallengeRoute
+  '/parent/trivia/': typeof ParentTriviaIndexRoute
   '/child/module/$moduleId/levels': typeof ChildModuleModuleIdLevelsRoute
   '/parent/children/$childId/stats': typeof ParentChildrenChildIdStatsRoute
+  '/parent/trivia/duel/$childId': typeof ParentTriviaDuelChildIdRoute
   '/child/module/$moduleId/level/$levelId/play': typeof ChildModuleModuleIdLevelLevelIdPlayRoute
   '/child/module/$moduleId/level/$levelId/result': typeof ChildModuleModuleIdLevelLevelIdResultRoute
 }
@@ -130,9 +166,13 @@ export interface FileRouteTypes {
     | '/child/home'
     | '/child/trivia'
     | '/parent/dashboard'
+    | '/parent/leaderboard'
     | '/parent/children/new'
+    | '/parent/trivia/challenge'
+    | '/parent/trivia/'
     | '/child/module/$moduleId/levels'
     | '/parent/children/$childId/stats'
+    | '/parent/trivia/duel/$childId'
     | '/child/module/$moduleId/level/$levelId/play'
     | '/child/module/$moduleId/level/$levelId/result'
   fileRoutesByTo: FileRoutesByTo
@@ -143,9 +183,13 @@ export interface FileRouteTypes {
     | '/child/home'
     | '/child/trivia'
     | '/parent/dashboard'
+    | '/parent/leaderboard'
     | '/parent/children/new'
+    | '/parent/trivia/challenge'
+    | '/parent/trivia'
     | '/child/module/$moduleId/levels'
     | '/parent/children/$childId/stats'
+    | '/parent/trivia/duel/$childId'
     | '/child/module/$moduleId/level/$levelId/play'
     | '/child/module/$moduleId/level/$levelId/result'
   id:
@@ -156,9 +200,13 @@ export interface FileRouteTypes {
     | '/child/home'
     | '/child/trivia'
     | '/parent/dashboard'
+    | '/parent/leaderboard'
     | '/parent/children/new'
+    | '/parent/trivia/challenge'
+    | '/parent/trivia/'
     | '/child/module/$moduleId/levels'
     | '/parent/children/$childId/stats'
+    | '/parent/trivia/duel/$childId'
     | '/child/module/$moduleId/level/$levelId/play'
     | '/child/module/$moduleId/level/$levelId/result'
   fileRoutesById: FileRoutesById
@@ -170,9 +218,13 @@ export interface RootRouteChildren {
   ChildHomeRoute: typeof ChildHomeRoute
   ChildTriviaRoute: typeof ChildTriviaRoute
   ParentDashboardRoute: typeof ParentDashboardRoute
+  ParentLeaderboardRoute: typeof ParentLeaderboardRoute
   ParentChildrenNewRoute: typeof ParentChildrenNewRoute
+  ParentTriviaChallengeRoute: typeof ParentTriviaChallengeRoute
+  ParentTriviaIndexRoute: typeof ParentTriviaIndexRoute
   ChildModuleModuleIdLevelsRoute: typeof ChildModuleModuleIdLevelsRoute
   ParentChildrenChildIdStatsRoute: typeof ParentChildrenChildIdStatsRoute
+  ParentTriviaDuelChildIdRoute: typeof ParentTriviaDuelChildIdRoute
   ChildModuleModuleIdLevelLevelIdPlayRoute: typeof ChildModuleModuleIdLevelLevelIdPlayRoute
   ChildModuleModuleIdLevelLevelIdResultRoute: typeof ChildModuleModuleIdLevelLevelIdResultRoute
 }
@@ -184,6 +236,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/leaderboard': {
+      id: '/parent/leaderboard'
+      path: '/parent/leaderboard'
+      fullPath: '/parent/leaderboard'
+      preLoaderRoute: typeof ParentLeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/parent/dashboard': {
@@ -221,11 +280,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/parent/trivia/': {
+      id: '/parent/trivia/'
+      path: '/parent/trivia'
+      fullPath: '/parent/trivia/'
+      preLoaderRoute: typeof ParentTriviaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/trivia/challenge': {
+      id: '/parent/trivia/challenge'
+      path: '/parent/trivia/challenge'
+      fullPath: '/parent/trivia/challenge'
+      preLoaderRoute: typeof ParentTriviaChallengeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/parent/children/new': {
       id: '/parent/children/new'
       path: '/parent/children/new'
       fullPath: '/parent/children/new'
       preLoaderRoute: typeof ParentChildrenNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parent/trivia/duel/$childId': {
+      id: '/parent/trivia/duel/$childId'
+      path: '/parent/trivia/duel/$childId'
+      fullPath: '/parent/trivia/duel/$childId'
+      preLoaderRoute: typeof ParentTriviaDuelChildIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/parent/children/$childId/stats': {
@@ -266,9 +346,13 @@ const rootRouteChildren: RootRouteChildren = {
   ChildHomeRoute: ChildHomeRoute,
   ChildTriviaRoute: ChildTriviaRoute,
   ParentDashboardRoute: ParentDashboardRoute,
+  ParentLeaderboardRoute: ParentLeaderboardRoute,
   ParentChildrenNewRoute: ParentChildrenNewRoute,
+  ParentTriviaChallengeRoute: ParentTriviaChallengeRoute,
+  ParentTriviaIndexRoute: ParentTriviaIndexRoute,
   ChildModuleModuleIdLevelsRoute: ChildModuleModuleIdLevelsRoute,
   ParentChildrenChildIdStatsRoute: ParentChildrenChildIdStatsRoute,
+  ParentTriviaDuelChildIdRoute: ParentTriviaDuelChildIdRoute,
   ChildModuleModuleIdLevelLevelIdPlayRoute:
     ChildModuleModuleIdLevelLevelIdPlayRoute,
   ChildModuleModuleIdLevelLevelIdResultRoute:
