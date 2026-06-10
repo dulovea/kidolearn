@@ -1,11 +1,35 @@
 import { useState, useEffect, useCallback } from "react";
-import type { Level, ModuleId } from "@/types/exercise";
+import type { Level, ModuleId, Exercise } from "@/types/exercise";
 import { ExerciseRenderer } from "./ExerciseRenderer";
 import { speak, primeVoices } from "@/lib/speech";
 import { playCorrect, playTick, resumeAudio } from "@/lib/audio";
 import { launchConfetti } from "@/lib/confetti";
 import { recordLevelResult } from "@/lib/progress";
 import { cn } from "@/lib/utils";
+
+function getCorrectAnswerLabel(ex: Exercise): string | null {
+  const d = ex.data as any;
+  switch (ex.type) {
+    case "choice":
+    case "compare":
+      return d.options?.[d.correctIndex] ?? null;
+    case "numpad":
+    case "count":
+      return d.unit ? `${d.answer} ${d.unit}` : String(d.answer);
+    case "compare-sign":
+      return d.answer;
+    case "sequence":
+    case "pattern":
+    case "clock":
+    case "fraction":
+    case "bar-chart":
+      return d.answer;
+    case "maze":
+      return d.paths?.[d.correctIndex] ?? null;
+    default:
+      return null;
+  }
+}
 
 interface Props {
   level: Level;
@@ -24,6 +48,15 @@ export function ExercisePlayer({ level, moduleId, childId, onFinish, onQuit }: P
 
   const exercise = level.exercises[idx];
   const total = level.exercises.length;
+  const correctAnswerLabel = answered && !lastCorrect ? getCorrectAnswerLabel(exercise) : null;
+
+  // Auto-advance after 2s on wrong answer
+  useEffect(() => {
+    if (!answered || lastCorrect !== false) return;
+    const t = setTimeout(() => next(), 2000);
+    return () => clearTimeout(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answered, lastCorrect]);
 
   // Speak when exercise changes
   useEffect(() => {
@@ -109,19 +142,30 @@ export function ExercisePlayer({ level, moduleId, childId, onFinish, onQuit }: P
       {/* Feedback + Next */}
       {answered && (
         <div className={cn(
-          "mx-4 mb-4 rounded-2xl px-5 py-4 flex items-center justify-between",
-          lastCorrect ? "bg-green-100 border-2 border-green-400" : "bg-orange-50 border-2 border-orange-300"
+          "mx-4 mb-4 rounded-2xl px-5 py-4",
+          lastCorrect ? "bg-green-100 border-2 border-green-400" : "bg-red-50 border-2 border-red-300"
         )}>
-          <div>
-            <p className={cn("font-extrabold text-lg", lastCorrect ? "text-green-700" : "text-orange-600")}>
-              {lastCorrect ? "Bravo ! 🎉" : "Essaie encore 💪"}
-            </p>
-            {!lastCorrect && <p className="text-sm text-orange-500">Continue, tu vas y arriver !</p>}
-          </div>
-          <button onClick={next}
-            className="rounded-2xl bg-child-primary text-white px-6 py-2 font-bold text-lg hover:opacity-90 active:scale-95">
-            {idx + 1 >= total ? "Voir résultat" : "Suivant →"}
-          </button>
+          {lastCorrect ? (
+            <div className="flex items-center justify-between">
+              <p className="font-extrabold text-lg text-green-700">Bravo ! 🎉</p>
+              <button onClick={next}
+                className="rounded-2xl bg-child-primary text-white px-6 py-2 font-bold text-lg hover:opacity-90 active:scale-95">
+                {idx + 1 >= total ? "Voir résultat" : "Suivant →"}
+              </button>
+            </div>
+          ) : (
+            <div>
+              <p className="font-extrabold text-lg text-red-600 mb-1">Pas tout à fait 😅</p>
+              {correctAnswerLabel && (
+                <div className="rounded-xl bg-green-100 border border-green-400 px-4 py-2 mb-2">
+                  <p className="text-sm font-semibold text-green-700">
+                    ✅ La bonne réponse était : <span className="font-extrabold">{correctAnswerLabel}</span>
+                  </p>
+                </div>
+              )}
+              <p className="text-xs text-red-400">Passage automatique dans 2 secondes…</p>
+            </div>
+          )}
         </div>
       )}
     </div>
