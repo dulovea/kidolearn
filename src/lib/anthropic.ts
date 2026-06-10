@@ -5,6 +5,8 @@ export async function generateTriviaQuestions(prompt: string): Promise<string> {
     body: JSON.stringify({ prompt })
   });
   const data = await res.json();
+  if (!res.ok) throw new Error(`/api/trivia ${res.status}: ${data.error ?? "unknown error"}`);
+  if (typeof data.text !== "string" || data.text === "") throw new Error("Réponse vide de /api/trivia");
   return data.text;
 }
 
@@ -49,7 +51,8 @@ Thèmes : histoire africaine, géographie du Bénin, animaux d'Afrique, culture 
     if (!jsonMatch) throw new Error("JSON non trouvé dans la réponse");
     const parsed = JSON.parse(jsonMatch[0]) as AiTriviaQuestion[];
     return parsed.slice(0, count);
-  } catch {
+  } catch (e) {
+    console.error("generateAiQuestions error:", e);
     return [];
   }
 }
@@ -75,7 +78,8 @@ Retourne UNIQUEMENT un tableau JSON valide :
     const jsonMatch = raw.match(/\[[\s\S]*\]/);
     if (!jsonMatch) throw new Error("JSON non trouvé dans la réponse");
     return JSON.parse(jsonMatch[0]) as AiTriviaQuestion[];
-  } catch {
+  } catch (e) {
+    console.error("generateParentTrivia error:", e);
     return [];
   }
 }
