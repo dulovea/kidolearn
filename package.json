@@ -11,9 +11,11 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.1",
     "@supabase/supabase-js": "^2.47.0",
     "@tanstack/react-router": "^1.81.0",
     "@tanstack/router-devtools": "^1.81.0",
+    "@vercel/node": "^5.8.14",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",

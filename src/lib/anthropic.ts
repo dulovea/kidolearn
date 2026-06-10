@@ -1,40 +1,16 @@
-const API_URL = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-sonnet-4-6";
-
-interface Message {
-  role: "user" | "assistant";
-  content: string;
+export async function generateTriviaQuestions(prompt: string): Promise<string> {
+  const res = await fetch("/api/trivia", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt })
+  });
+  const data = await res.json();
+  return data.text;
 }
 
 async function callClaude(systemPrompt: string, userPrompt: string): Promise<string> {
-  const key = import.meta.env.VITE_ANTHROPIC_API_KEY as string;
-  if (!key) throw new Error("VITE_ANTHROPIC_API_KEY manquant");
-
-  const messages: Message[] = [{ role: "user", content: userPrompt }];
-
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": key,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages,
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Anthropic API error ${res.status}: ${err}`);
-  }
-
-  const data = await res.json();
-  return data.content[0].text as string;
+  const prompt = systemPrompt ? `${systemPrompt}\n\n${userPrompt}` : userPrompt;
+  return generateTriviaQuestions(prompt);
 }
 
 export interface AiTriviaQuestion {
