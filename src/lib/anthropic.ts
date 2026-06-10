@@ -47,7 +47,8 @@ Thèmes : histoire africaine, géographie du Bénin, animaux d'Afrique, culture 
 
   try {
     const raw = await callClaude(system, user);
-    const jsonMatch = raw.match(/\[[\s\S]*\]/);
+    const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
     if (!jsonMatch) throw new Error("JSON non trouvé dans la réponse");
     const parsed = JSON.parse(jsonMatch[0]) as AiTriviaQuestion[];
     return parsed.slice(0, count);
@@ -75,7 +76,8 @@ Retourne UNIQUEMENT un tableau JSON valide :
 
   try {
     const raw = await callClaude(system, user);
-    const jsonMatch = raw.match(/\[[\s\S]*\]/);
+    const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
     if (!jsonMatch) throw new Error("JSON non trouvé dans la réponse");
     return JSON.parse(jsonMatch[0]) as AiTriviaQuestion[];
   } catch (e) {
