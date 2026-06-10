@@ -45,12 +45,12 @@ function ParentDashboard() {
         <section className="mb-6">
           <h2 className="mb-3 text-base font-semibold text-parent-primary">Espace parent</h2>
           <div className="grid grid-cols-3 gap-3">
-            <button onClick={() => navigate({ to: "/parent/trivia/" })}
+            <button onClick={() => navigate({ to: "/parent/trivia" })}
               className="flex flex-col items-center gap-1 rounded-xl bg-white border border-slate-200 p-3 shadow-sm hover:border-parent-accent transition">
               <span className="text-2xl">🧠</span>
               <span className="text-xs font-medium text-slate-600 text-center">Trivia solo</span>
             </button>
-            <button onClick={() => navigate({ to: "/parent/trivia/challenge" })}
+            <button onClick={() => navigate({ to: "/parent/triviachallenge" })}
               className="flex flex-col items-center gap-1 rounded-xl bg-white border border-slate-200 p-3 shadow-sm hover:border-parent-accent transition">
               <span className="text-2xl">📤</span>
               <span className="text-xs font-medium text-slate-600 text-center">Créer un défi</span>
@@ -76,8 +76,8 @@ function ParentDashboard() {
                 <ChildCard key={child.id} child={child}
                   onPlay={() => navigate({ to: "/child/home", search: { childId: child.id } })}
                   onStats={() => navigate({ to: "/parent/children/$childId/stats", params: { childId: child.id } })}
-                  onTrivia={() => navigate({ to: "/parent/trivia/" })}
-                  onDuel={() => navigate({ to: "/parent/trivia/duel/$childId", params: { childId: child.id } })}
+                  onTrivia={() => navigate({ to: "/parent/trivia" })}
+                  onDuel={() => navigate({ to: "/parent/triviaduel/$childId", params: { childId: child.id } })}
                 />
               ))}
               <button onClick={() => navigate({ to: "/parent/children/new" })}

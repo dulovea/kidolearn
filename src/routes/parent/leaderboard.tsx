@@ -91,7 +91,7 @@ function LeaderboardPage() {
             <p className="text-4xl mb-2">🌱</p>
             <p className="font-semibold text-slate-600">Pas encore de données cette semaine.</p>
             <p className="mt-1 text-sm text-slate-400">Jouez au trivia pour apparaître ici !</p>
-            <button onClick={() => navigate({ to: "/parent/trivia/" })}
+            <button onClick={() => navigate({ to: "/parent/trivia" })}
               className="mt-4 rounded-lg bg-parent-accent px-5 py-2 text-sm font-semibold text-white hover:opacity-90">
               Jouer au trivia
             </button>
