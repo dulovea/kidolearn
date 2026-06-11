@@ -11,6 +11,7 @@ import { z } from "zod";
 import { primeVoices } from "@/lib/speech";
 import { resumeAudio } from "@/lib/audio";
 import { ChildOnboarding } from "@/components/ChildOnboarding";
+import { ParentalPinModal } from "@/components/ParentalPinModal";
 
 const searchSchema = z.object({ childId: z.string() });
 
@@ -45,14 +46,18 @@ export function ChildHome() {
   const navigate = useNavigate();
   const { childId } = Route.useSearch();
   const [child, setChild] = useState<ChildProfile | null>(null);
+  const [siblings, setSiblings] = useState<ChildProfile[]>([]);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
 
   useEffect(() => {
     const profiles = getCachedChildProfiles() as ChildProfile[];
-    setChild(profiles.find((p) => p.id === childId) ?? null);
-    if (!localStorage.getItem(`onboarding_done_${childId}`)) {
-      setShowOnboarding(true);
-    }
+    const me = profiles.find((p) => p.id === childId) ?? null;
+    setChild(me);
+    if (me) setSiblings(profiles.filter((p) => p.parentId === me.parentId && p.id !== childId));
+    if (!localStorage.getItem(`onboarding_done_${childId}`)) setShowOnboarding(true);
+    // Mark child session so parent routes can redirect back
+    sessionStorage.setItem("active_child_id", childId);
     primeVoices();
     resumeAudio();
   }, [childId]);
@@ -60,6 +65,12 @@ export function ChildHome() {
   function finishChildOnboarding() {
     localStorage.setItem(`onboarding_done_${childId}`, "1");
     setShowOnboarding(false);
+  }
+
+  function handlePinSuccess() {
+    sessionStorage.removeItem("active_child_id");
+    setShowPinModal(false);
+    navigate({ to: "/parent/dashboard" });
   }
 
   if (!child) return (
@@ -73,8 +84,15 @@ export function ChildHome() {
       {showOnboarding && child && (
         <ChildOnboarding childName={child.name} onDone={finishChildOnboarding} />
       )}
+      {showPinModal && child && (
+        <ParentalPinModal
+          parentId={child.parentId}
+          onSuccess={handlePinSuccess}
+          onCancel={() => setShowPinModal(false)}
+        />
+      )}
       <header className="mb-6 flex items-center justify-between">
-        <button onClick={() => navigate({ to: "/parent/dashboard" })}
+        <button onClick={() => setShowPinModal(true)}
           className="rounded-2xl bg-white/70 px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm backdrop-blur hover:bg-white">
           ← Papa / Maman
         </button>
@@ -120,6 +138,26 @@ export function ChildHome() {
           );
         })}
       </div>
+
+      {siblings.length > 0 && (
+        <div className="mt-6 max-w-md mx-auto">
+          <p className="text-center text-sm font-bold text-slate-500 mb-3">⚔️ Défier un frère ou une sœur</p>
+          <div className="flex flex-col gap-3">
+            {siblings.map((sib) => (
+              <button key={sib.id}
+                onClick={() => navigate({ to: "/child/duel", search: { childId, siblingId: sib.id } })}
+                className="flex items-center gap-4 rounded-3xl bg-gradient-to-r from-amber-100 to-orange-100 p-4 shadow-sm active:scale-95 transition">
+                <span className="text-4xl">{sib.avatarEmoji}</span>
+                <div className="flex-1 text-left">
+                  <p className="font-extrabold text-slate-800">⚔️ Défier {sib.name}</p>
+                  <p className="text-xs text-slate-500">Même 10 questions — qui gagne ?</p>
+                </div>
+                <span className="text-2xl">→</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

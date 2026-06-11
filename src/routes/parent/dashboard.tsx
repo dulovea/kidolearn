@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ParentOnboarding } from "@/components/ParentOnboarding";
 import { useChildProfiles } from "@/hooks/useChildProfile";
@@ -25,13 +25,59 @@ function ParentDashboard() {
   const [showOnboarding, setShowOnboarding] = useState(
     () => !localStorage.getItem("onboarding_done")
   );
+  const [pinSetup, setPinSetup] = useState<"idle" | "enter" | "confirm">("idle");
+  const [pinInput, setPinInput] = useState("");
+  const [pinFirst, setPinFirst] = useState("");
+  const [pinSaved, setPinSaved] = useState(false);
+
+  // Redirect back to child if session still active (child tried to access parent)
+  useEffect(() => {
+    const childId = sessionStorage.getItem("active_child_id");
+    if (childId) navigate({ to: "/child/home", search: { childId } });
+  }, [navigate]);
 
   function finishOnboarding() {
     localStorage.setItem("onboarding_done", "1");
     setShowOnboarding(false);
   }
 
+  async function savePin(pin: string) {
+    if (!user) return;
+    await (supabase.from("profiles" as any).upsert({ id: user.id, parental_pin: pin } as any) as any);
+    setPinSetup("idle");
+    setPinInput("");
+    setPinFirst("");
+    setPinSaved(true);
+    setTimeout(() => setPinSaved(false), 3000);
+  }
+
+  function handlePinDigit(d: string) {
+    if (pinInput.length >= 4) return;
+    const next = pinInput + d;
+    setPinInput(next);
+    if (next.length === 4) {
+      if (pinSetup === "enter") { setPinFirst(next); setPinInput(""); setPinSetup("confirm"); }
+      else if (pinSetup === "confirm") {
+        if (next === pinFirst) savePin(next);
+        else { setPinInput(""); setPinFirst(""); setPinSetup("enter"); }
+      }
+    }
+  }
+
   const displayProfiles = profiles ?? rawProfiles;
+
+  // Child duel history from localStorage (last 7 days)
+  const duelHistory = (() => {
+    const results: { date: string; childId: string; score: number }[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(Date.now() - i * 86400000).toISOString().split("T")[0];
+      displayProfiles.forEach((child) => {
+        const raw = localStorage.getItem(`kidolearn:duel:${d}:${child.id}`);
+        if (raw) results.push({ date: d, childId: child.id, score: JSON.parse(raw).score });
+      });
+    }
+    return results;
+  })();
 
   async function confirmDelete() {
     if (!deleteTarget) return;
@@ -121,6 +167,83 @@ function ParentDashboard() {
             </button>
           </div>
         </section>
+
+        {/* PIN setup section */}
+        <section className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-base font-semibold text-parent-primary">🔒 Code parent</h2>
+            {pinSetup === "idle" && (
+              <button onClick={() => { setPinSetup("enter"); setPinInput(""); setPinFirst(""); }}
+                className="text-xs font-semibold text-parent-accent hover:underline">
+                Modifier
+              </button>
+            )}
+          </div>
+          {pinSetup === "idle" ? (
+            <p className="text-xs text-slate-400">
+              {pinSaved ? "✅ Code enregistré !" : "Sécurisez le retour vers cet espace avec un code à 4 chiffres."}
+            </p>
+          ) : (
+            <div className="rounded-xl bg-white border border-slate-200 p-4 shadow-sm">
+              <p className="text-sm font-semibold text-slate-700 mb-3 text-center">
+                {pinSetup === "enter" ? "Choisissez un code à 4 chiffres" : "Confirmez le code"}
+              </p>
+              <div className="flex justify-center gap-2 mb-3">
+                {[0,1,2,3].map((i) => (
+                  <div key={i} className={`w-3 h-3 rounded-full border-2 ${pinInput.length > i ? "bg-parent-accent border-parent-accent" : "border-slate-300"}`} />
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-2 max-w-[200px] mx-auto">
+                {["1","2","3","4","5","6","7","8","9","","0","⌫"].map((d, i) =>
+                  d === "" ? <div key={i} /> :
+                  d === "⌫" ? (
+                    <button key={i} onClick={() => setPinInput((p) => p.slice(0,-1))}
+                      className="rounded-lg bg-slate-100 py-2 text-base font-bold text-slate-500 hover:bg-slate-200">⌫</button>
+                  ) : (
+                    <button key={i} onClick={() => handlePinDigit(d)}
+                      className="rounded-lg bg-slate-100 py-2 text-base font-bold text-slate-700 hover:bg-slate-200">{d}</button>
+                  )
+                )}
+              </div>
+              <button onClick={() => setPinSetup("idle")} className="mt-3 w-full text-xs text-slate-400 underline">Annuler</button>
+            </div>
+          )}
+        </section>
+
+        {/* Child duel history */}
+        {duelHistory.length > 0 && displayProfiles.length >= 2 && (
+          <section className="mb-6">
+            <h2 className="mb-3 text-base font-semibold text-parent-primary">⚔️ Duels entre enfants</h2>
+            <div className="flex flex-col gap-2">
+              {Object.entries(
+                duelHistory.reduce<Record<string, { date: string; scores: { name: string; avatarEmoji: string; score: number }[] }>>((acc, entry) => {
+                  const child = displayProfiles.find((p) => p.id === entry.childId);
+                  if (!child) return acc;
+                  if (!acc[entry.date]) acc[entry.date] = { date: entry.date, scores: [] };
+                  acc[entry.date].scores.push({ name: child.name, avatarEmoji: child.avatarEmoji, score: entry.score });
+                  return acc;
+                }, {})
+              ).slice(0, 5).map(([date, { scores }]) => {
+                if (scores.length < 2) return null;
+                const sorted = [...scores].sort((a, b) => b.score - a.score);
+                return (
+                  <div key={date} className="rounded-xl bg-white border border-slate-200 px-4 py-3 shadow-sm flex items-center justify-between">
+                    <span className="text-xs text-slate-400">{new Date(date).toLocaleDateString("fr-FR")}</span>
+                    <div className="flex items-center gap-2">
+                      {sorted.map((s, i) => (
+                        <span key={s.name} className="text-sm font-bold text-slate-700">
+                          {i > 0 && <span className="text-slate-300 mx-1">vs</span>}
+                          {s.avatarEmoji} {s.name} <span className={i === 0 ? "text-amber-600" : "text-slate-500"}>{s.score}/10</span>
+                          {i === 0 && <span className="ml-1">🏆</span>}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         <section>
           <h2 className="mb-4 text-base font-semibold text-parent-primary">Mes enfants</h2>

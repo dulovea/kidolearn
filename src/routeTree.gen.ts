@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ParentLeaderboardRouteImport } from './routes/parent/leaderboard'
 import { Route as ParentDashboardRouteImport } from './routes/parent/dashboard'
 import { Route as ChildTriviaRouteImport } from './routes/child/trivia'
+import { Route as ChildDuelRouteImport } from './routes/child/duel'
 import { Route as ChildHomeRouteImport } from './routes/child/home'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
@@ -43,6 +44,11 @@ const ParentDashboardRoute = ParentDashboardRouteImport.update({
 const ChildTriviaRoute = ChildTriviaRouteImport.update({
   id: '/child/trivia',
   path: '/child/trivia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChildDuelRoute = ChildDuelRouteImport.update({
+  id: '/child/duel',
+  path: '/child/duel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChildHomeRoute = ChildHomeRouteImport.update({
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/auth/register': typeof AuthRegisterRoute
   '/child/home': typeof ChildHomeRoute
   '/child/trivia': typeof ChildTriviaRoute
+  '/child/duel': typeof ChildDuelRoute
   '/parent/dashboard': typeof ParentDashboardRoute
   '/parent/leaderboard': typeof ParentLeaderboardRoute
   '/parent/children/new': typeof ParentChildrenNewRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByTo {
   '/auth/register': typeof AuthRegisterRoute
   '/child/home': typeof ChildHomeRoute
   '/child/trivia': typeof ChildTriviaRoute
+  '/child/duel': typeof ChildDuelRoute
   '/parent/dashboard': typeof ParentDashboardRoute
   '/parent/leaderboard': typeof ParentLeaderboardRoute
   '/parent/children/new': typeof ParentChildrenNewRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   '/auth/register': typeof AuthRegisterRoute
   '/child/home': typeof ChildHomeRoute
   '/child/trivia': typeof ChildTriviaRoute
+  '/child/duel': typeof ChildDuelRoute
   '/parent/dashboard': typeof ParentDashboardRoute
   '/parent/leaderboard': typeof ParentLeaderboardRoute
   '/parent/children/new': typeof ParentChildrenNewRoute
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/child/home'
     | '/child/trivia'
+    | '/child/duel'
     | '/parent/dashboard'
     | '/parent/leaderboard'
     | '/parent/children/new'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/child/home'
     | '/child/trivia'
+    | '/child/duel'
     | '/parent/dashboard'
     | '/parent/leaderboard'
     | '/parent/children/new'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/auth/register'
     | '/child/home'
     | '/child/trivia'
+    | '/child/duel'
     | '/parent/dashboard'
     | '/parent/leaderboard'
     | '/parent/children/new'
@@ -217,6 +229,7 @@ export interface RootRouteChildren {
   AuthRegisterRoute: typeof AuthRegisterRoute
   ChildHomeRoute: typeof ChildHomeRoute
   ChildTriviaRoute: typeof ChildTriviaRoute
+  ChildDuelRoute: typeof ChildDuelRoute
   ParentDashboardRoute: typeof ParentDashboardRoute
   ParentLeaderboardRoute: typeof ParentLeaderboardRoute
   ParentChildrenNewRoute: typeof ParentChildrenNewRoute
@@ -336,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChildModuleModuleIdLevelLevelIdPlayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/child/duel': {
+      id: '/child/duel'
+      path: '/child/duel'
+      fullPath: '/child/duel'
+      preLoaderRoute: typeof ChildDuelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -345,6 +365,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRegisterRoute: AuthRegisterRoute,
   ChildHomeRoute: ChildHomeRoute,
   ChildTriviaRoute: ChildTriviaRoute,
+  ChildDuelRoute: ChildDuelRoute,
   ParentDashboardRoute: ParentDashboardRoute,
   ParentLeaderboardRoute: ParentLeaderboardRoute,
   ParentChildrenNewRoute: ParentChildrenNewRoute,
