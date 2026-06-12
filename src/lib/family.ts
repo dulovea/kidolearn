@@ -2,30 +2,45 @@ import { supabase } from "@/lib/supabase";
 
 export async function ensureFamily(userId: string): Promise<string | null> {
   // Check if user already belongs to a family
-  const { data: membership } = await (supabase
+  const { data: membership, error: memberErr } = await (supabase
     .from("family_members" as any)
     .select("family_id")
     .eq("user_id", userId)
     .eq("status", "accepted")
     .single() as any);
 
+  if (memberErr && memberErr.code !== "PGRST116") {
+    console.error("[ensureFamily] membership lookup error:", memberErr);
+  }
+
   if (membership?.family_id) return membership.family_id as string;
 
   // Create a new family and add user as owner
-  const { data: family } = await (supabase
+  const { data: family, error: familyErr } = await (supabase
     .from("families" as any)
     .insert({ owner_id: userId } as any)
     .select("id")
     .single() as any);
 
-  if (!family) return null;
+  if (familyErr) {
+    console.error("[ensureFamily] INSERT families error:", familyErr);
+    return null;
+  }
+  if (!family) {
+    console.error("[ensureFamily] INSERT families returned no data");
+    return null;
+  }
 
-  await (supabase.from("family_members" as any).insert({
+  const { error: ownerErr } = await (supabase.from("family_members" as any).insert({
     family_id: family.id,
     user_id: userId,
     role: "owner",
     status: "accepted",
   } as any) as any);
+
+  if (ownerErr) {
+    console.error("[ensureFamily] INSERT family_members (owner) error:", ownerErr);
+  }
 
   return family.id as string;
 }
