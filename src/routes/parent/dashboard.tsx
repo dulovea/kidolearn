@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { ParentOnboarding } from "@/components/ParentOnboarding";
+import { ensureFamily, inviteConjoint } from "@/lib/family";
 import { useChildProfiles } from "@/hooks/useChildProfile";
 import { useOfflineSync } from "@/hooks/useOfflineSync";
 import { supabase } from "@/lib/supabase";
@@ -26,6 +27,11 @@ function ParentDashboard() {
     () => !localStorage.getItem("onboarding_done")
   );
   const [pinSetup, setPinSetup] = useState<"idle" | "enter" | "confirm">("idle");
+  const [showInvite, setShowInvite] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
+  const [inviteSent, setInviteSent] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
   const [pinInput, setPinInput] = useState("");
   const [pinFirst, setPinFirst] = useState("");
   const [pinSaved, setPinSaved] = useState(false);
@@ -41,14 +47,33 @@ function ParentDashboard() {
     setShowOnboarding(false);
   }
 
+  async function sendInvite() {
+    if (!user || !inviteEmail) return;
+    setInviting(true);
+    setInviteError(null);
+    const familyId = await ensureFamily(user.id);
+    if (!familyId) { setInviteError("Impossible de créer la famille."); setInviting(false); return; }
+    const { error } = await inviteConjoint(familyId, inviteEmail);
+    if (error) setInviteError(error);
+    else { setInviteSent(true); setInviteEmail(""); }
+    setInviting(false);
+  }
+
   async function savePin(pin: string) {
     if (!user) return;
-    await (supabase.from("profiles" as any).upsert({ id: user.id, parental_pin: pin } as any) as any);
+    const { error } = await (supabase
+      .from("profiles" as any)
+      .update({ parental_pin: pin } as any)
+      .eq("id", user.id) as any);
+    if (error) {
+      // Fallback: try upsert if update missed (profile row may not exist yet)
+      await (supabase.from("profiles" as any).upsert({ id: user.id, parental_pin: pin } as any) as any);
+    }
     setPinSetup("idle");
     setPinInput("");
     setPinFirst("");
     setPinSaved(true);
-    setTimeout(() => setPinSaved(false), 3000);
+    setTimeout(() => setPinSaved(false), 4000);
   }
 
   function handlePinDigit(d: string) {
@@ -180,8 +205,8 @@ function ParentDashboard() {
             )}
           </div>
           {pinSetup === "idle" ? (
-            <p className="text-xs text-slate-400">
-              {pinSaved ? "✅ Code enregistré !" : "Sécurisez le retour vers cet espace avec un code à 4 chiffres."}
+            <p className={`text-xs ${pinSaved ? "font-semibold text-green-600" : "text-slate-400"}`}>
+              {pinSaved ? "✅ PIN mis à jour !" : "Sécurisez le retour vers cet espace avec un code à 4 chiffres."}
             </p>
           ) : (
             <div className="rounded-xl bg-white border border-slate-200 p-4 shadow-sm">
@@ -207,6 +232,40 @@ function ParentDashboard() {
               </div>
               <button onClick={() => setPinSetup("idle")} className="mt-3 w-full text-xs text-slate-400 underline">Annuler</button>
             </div>
+          )}
+        </section>
+
+        {/* Invite conjoint */}
+        <section className="mb-6">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-base font-semibold text-parent-primary">👥 Famille</h2>
+            <button onClick={() => { setShowInvite((v) => !v); setInviteSent(false); setInviteError(null); }}
+              className="text-xs font-semibold text-parent-accent hover:underline">
+              {showInvite ? "Fermer" : "Inviter mon conjoint"}
+            </button>
+          </div>
+          {inviteSent && (
+            <p className="text-xs font-semibold text-green-600">✅ Invitation envoyée ! Votre conjoint recevra un email.</p>
+          )}
+          {!inviteSent && showInvite && (
+            <div className="rounded-xl bg-white border border-slate-200 p-4 shadow-sm">
+              <p className="text-xs text-slate-500 mb-3">
+                Votre conjoint recevra un lien magique pour rejoindre votre espace familial et voir les mêmes enfants.
+              </p>
+              <div className="flex gap-2">
+                <input type="email" placeholder="Email du conjoint" value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-parent-accent" />
+                <button onClick={sendInvite} disabled={inviting || !inviteEmail}
+                  className="rounded-lg bg-parent-accent px-4 py-2 text-xs font-semibold text-white hover:opacity-90 disabled:opacity-50">
+                  {inviting ? "…" : "Envoyer"}
+                </button>
+              </div>
+              {inviteError && <p className="mt-2 text-xs text-red-500">{inviteError}</p>}
+            </div>
+          )}
+          {!showInvite && !inviteSent && (
+            <p className="text-xs text-slate-400">Partagez l'accès aux profils de vos enfants avec votre conjoint(e).</p>
           )}
         </section>
 

@@ -17,6 +17,8 @@ import { Route as ChildDuelRouteImport } from './routes/child/duel'
 import { Route as ChildHomeRouteImport } from './routes/child/home'
 import { Route as AuthRegisterRouteImport } from './routes/auth/register'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthAcceptInviteRouteImport } from './routes/auth/accept-invite'
+import { Route as ChallengeCodeRouteImport } from './routes/challenge/$code'
 import { Route as ParentTriviaIndexRouteImport } from './routes/parent/trivia/index'
 import { Route as ParentTriviaChallengeRouteImport } from './routes/parent/trivia/challenge'
 import { Route as ParentChildrenNewRouteImport } from './routes/parent/children/new'
@@ -59,6 +61,16 @@ const ChildHomeRoute = ChildHomeRouteImport.update({
 const AuthRegisterRoute = AuthRegisterRouteImport.update({
   id: '/auth/register',
   path: '/auth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthAcceptInviteRoute = AuthAcceptInviteRouteImport.update({
+  id: '/auth/accept-invite',
+  path: '/auth/accept-invite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChallengeCodeRoute = ChallengeCodeRouteImport.update({
+  id: '/challenge/$code',
+  path: '/challenge/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
@@ -115,6 +127,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/accept-invite': typeof AuthAcceptInviteRoute
+  '/challenge/$code': typeof ChallengeCodeRoute
   '/child/home': typeof ChildHomeRoute
   '/child/trivia': typeof ChildTriviaRoute
   '/child/duel': typeof ChildDuelRoute
@@ -133,6 +147,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/accept-invite': typeof AuthAcceptInviteRoute
+  '/challenge/$code': typeof ChallengeCodeRoute
   '/child/home': typeof ChildHomeRoute
   '/child/trivia': typeof ChildTriviaRoute
   '/child/duel': typeof ChildDuelRoute
@@ -152,6 +168,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/register': typeof AuthRegisterRoute
+  '/auth/accept-invite': typeof AuthAcceptInviteRoute
+  '/challenge/$code': typeof ChallengeCodeRoute
   '/child/home': typeof ChildHomeRoute
   '/child/trivia': typeof ChildTriviaRoute
   '/child/duel': typeof ChildDuelRoute
@@ -172,6 +190,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/accept-invite'
+    | '/challenge/$code'
     | '/child/home'
     | '/child/trivia'
     | '/child/duel'
@@ -190,6 +210,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/accept-invite'
+    | '/challenge/$code'
     | '/child/home'
     | '/child/trivia'
     | '/child/duel'
@@ -208,6 +230,8 @@ export interface FileRouteTypes {
     | '/'
     | '/auth/login'
     | '/auth/register'
+    | '/auth/accept-invite'
+    | '/challenge/$code'
     | '/child/home'
     | '/child/trivia'
     | '/child/duel'
@@ -227,6 +251,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthLoginRoute: typeof AuthLoginRoute
   AuthRegisterRoute: typeof AuthRegisterRoute
+  AuthAcceptInviteRoute: typeof AuthAcceptInviteRoute
+  ChallengeCodeRoute: typeof ChallengeCodeRoute
   ChildHomeRoute: typeof ChildHomeRoute
   ChildTriviaRoute: typeof ChildTriviaRoute
   ChildDuelRoute: typeof ChildDuelRoute
@@ -356,6 +382,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChildDuelRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/accept-invite': {
+      id: '/auth/accept-invite'
+      path: '/auth/accept-invite'
+      fullPath: '/auth/accept-invite'
+      preLoaderRoute: typeof AuthAcceptInviteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/challenge/$code': {
+      id: '/challenge/$code'
+      path: '/challenge/$code'
+      fullPath: '/challenge/$code'
+      preLoaderRoute: typeof ChallengeCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -363,6 +403,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthLoginRoute: AuthLoginRoute,
   AuthRegisterRoute: AuthRegisterRoute,
+  AuthAcceptInviteRoute: AuthAcceptInviteRoute,
+  ChallengeCodeRoute: ChallengeCodeRoute,
   ChildHomeRoute: ChildHomeRoute,
   ChildTriviaRoute: ChildTriviaRoute,
   ChildDuelRoute: ChildDuelRoute,

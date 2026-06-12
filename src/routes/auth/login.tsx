@@ -1,17 +1,31 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
+import { z } from "zod";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
+const searchSchema = z.object({ confirmed: z.string().optional() });
+
 export const Route = createFileRoute("/auth/login")({
+  validateSearch: searchSchema,
   component: LoginPage,
 });
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { confirmed } = useSearch({ from: "/auth/login" });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [autoLogged, setAutoLogged] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // If user arrives here after confirming email, Supabase may have auto-logged them in
+  useEffect(() => {
+    if (!confirmed) return;
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setAutoLogged(true);
+    });
+  }, [confirmed]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -26,8 +40,29 @@ function LoginPage() {
     }
   }
 
+  if (autoLogged) {
+    return (
+      <div className="parent-space flex min-h-screen flex-col items-center justify-center bg-parent-bg px-4">
+        <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-lg text-center">
+          <div className="text-5xl mb-4">✅</div>
+          <h2 className="text-xl font-bold text-green-700 mb-2">Email confirmé !</h2>
+          <p className="text-sm text-slate-500 mb-6">Vous êtes connecté et votre compte est actif.</p>
+          <button onClick={() => navigate({ to: "/parent/dashboard" })}
+            className="w-full rounded-lg bg-parent-accent py-2 text-sm font-semibold text-white hover:opacity-90">
+            Accéder au tableau de bord →
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="parent-space flex min-h-screen flex-col items-center justify-center bg-parent-bg px-4">
+      {confirmed && !autoLogged && (
+        <div className="mb-4 w-full max-w-sm rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+          ✅ Email confirmé ! Connectez-vous pour accéder à votre espace.
+        </div>
+      )}
       {!isSupabaseConfigured && (
         <div className="mb-4 w-full max-w-sm rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
           <p className="font-semibold">⚙️ Configuration requise</p>

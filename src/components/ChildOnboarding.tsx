@@ -20,7 +20,7 @@ export function ChildOnboarding({ childName, onDone }: Props) {
       emoji: "🎮",
       bg: "from-amber-400 to-orange-500",
       title: "Comment jouer ?",
-      body: "Choisis un module, réponds aux questions, et gagne des étoiles ! Si tu te trompes, pas de panique — tu verras la bonne réponse 😊",
+      body: "🔢 Le bouton Jouer te fait pratiquer les maths et la logique, niveau par niveau.\n🧠 Le bouton Trivia te pose des questions de culture générale sur le monde et l'Afrique.\nSi tu te trompes, pas de panique — tu verras la bonne réponse 😊",
     },
     {
       emoji: "🚀",
@@ -52,7 +52,7 @@ export function ChildOnboarding({ childName, onDone }: Props) {
       )}>
         <div className="text-8xl mb-6 animate-bounce">{current.emoji}</div>
         <h2 className="text-2xl font-extrabold mb-4">{current.title}</h2>
-        <p className="text-base leading-relaxed opacity-90">{current.body}</p>
+        <p className="text-base leading-relaxed opacity-90 whitespace-pre-line">{current.body}</p>
       </div>
 
       {/* Buttons */}
