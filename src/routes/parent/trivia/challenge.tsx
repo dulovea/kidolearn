@@ -70,8 +70,9 @@ function ChallengePage() {
 
   function shareOnWhatsApp() {
     if (!code) return;
+    const url = `${window.location.origin}/challenge/${code}`;
     const text = encodeURIComponent(
-      `🧠 Je te lance un défi KidoLearn !\nUtilise le code : *${code}*\nValable 24h — Qui aura le meilleur score ? 🏆\nTélécharge KidoLearn pour relever le défi !`
+      `Je te défie sur KidoLearn ! Clique ici pour jouer : ${url} 🧠💪`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
   }
